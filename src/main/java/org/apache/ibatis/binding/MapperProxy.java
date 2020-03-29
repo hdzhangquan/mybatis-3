@@ -41,7 +41,15 @@ public class MapperProxy<T> implements InvocationHandler, Serializable {
   private static final Constructor<Lookup> lookupConstructor;
   private static final Method privateLookupInMethod;
   private final SqlSession sqlSession;
+  /**
+   * Mapper 接口
+   */
   private final Class<T> mapperInterface;
+  /**
+   * 方法与 MapperMethod 的映射
+   *
+   * 从 {@link MapperProxyFactory#methodCache} 传递过来
+   */
   private final Map<Method, MapperMethodInvoker> methodCache;
 
   public MapperProxy(SqlSession sqlSession, Class<T> mapperInterface, Map<Method, MapperMethodInvoker> methodCache) {

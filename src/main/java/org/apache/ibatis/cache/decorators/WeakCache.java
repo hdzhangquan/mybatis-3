@@ -29,7 +29,13 @@ import org.apache.ibatis.cache.Cache;
  * @author Clinton Begin
  */
 public class WeakCache implements Cache {
+  /**
+   * 强引用的键的队列
+   */
   private final Deque<Object> hardLinksToAvoidGarbageCollection;
+  /**
+   * 被 GC 回收的 WeakEntry 集合，避免被 GC。
+   */
   private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
   private final Cache delegate;
   private int numberOfHardLinks;
@@ -70,9 +76,12 @@ public class WeakCache implements Cache {
     if (weakReference != null) {
       result = weakReference.get();
       if (result == null) {
+        // 为空，从 delegate 中移除 。为空的原因是，意味着已经被 GC 回收
         delegate.removeObject(key);
       } else {
+        // 添加到 hardLinksToAvoidGarbageCollection 的队头
         hardLinksToAvoidGarbageCollection.addFirst(result);
+        // 超过上限，移除 hardLinksToAvoidGarbageCollection 的队尾
         if (hardLinksToAvoidGarbageCollection.size() > numberOfHardLinks) {
           hardLinksToAvoidGarbageCollection.removeLast();
         }
@@ -94,6 +103,7 @@ public class WeakCache implements Cache {
     delegate.clear();
   }
 
+  // 移除已经被 GC 回收的 WeakEntry
   private void removeGarbageCollectedItems() {
     WeakEntry sv;
     while ((sv = (WeakEntry) queueOfGarbageCollectedEntries.poll()) != null) {

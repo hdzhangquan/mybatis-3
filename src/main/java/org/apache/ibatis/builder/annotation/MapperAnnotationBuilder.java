@@ -227,10 +227,13 @@ public class MapperAnnotationBuilder {
 
   private String parseResultMap(Method method) {
     Class<?> returnType = getReturnType(method);
+    // 获得 @ConstructorArgs、@Results、@TypeDiscriminator 注解
     Arg[] args = method.getAnnotationsByType(Arg.class);
     Result[] results = method.getAnnotationsByType(Result.class);
     TypeDiscriminator typeDiscriminator = method.getAnnotation(TypeDiscriminator.class);
+    // 生成 resultMapId
     String resultMapId = generateResultMapName(method);
+    // 生成 ResultMap 对象
     applyResultMap(resultMapId, returnType, args, results, typeDiscriminator);
     return resultMapId;
   }
@@ -252,9 +255,13 @@ public class MapperAnnotationBuilder {
   }
 
   private void applyResultMap(String resultMapId, Class<?> returnType, Arg[] args, Result[] results, TypeDiscriminator discriminator) {
+    //  创建 ResultMapping 数组
     List<ResultMapping> resultMappings = new ArrayList<>();
+    //  将 @Arg[] 注解数组，解析成对应的 ResultMapping 对象们，并添加到 resultMappings 中
     applyConstructorArgs(args, returnType, resultMappings);
+    //  将 @Result[] 注解数组，解析成对应的 ResultMapping 对象们，并添加到 resultMappings 中
     applyResults(results, returnType, resultMappings);
+    //  创建 Discriminator 对象
     Discriminator disc = applyDiscriminator(resultMapId, returnType, discriminator);
     // TODO add AutoMappingBehaviour
     assistant.addResultMap(resultMapId, returnType, null, disc, resultMappings, null);
@@ -300,6 +307,7 @@ public class MapperAnnotationBuilder {
     LanguageDriver languageDriver = getLanguageDriver(method);
     SqlSource sqlSource = getSqlSourceFromAnnotations(method, parameterTypeClass, languageDriver);
     if (sqlSource != null) {
+      // @Options(useGeneratedKeys = true, keyProperty = "id")
       Options options = method.getAnnotation(Options.class);
       final String mappedStatementId = type.getName() + "." + method.getName();
       Integer fetchSize = null;
@@ -392,6 +400,10 @@ public class MapperAnnotationBuilder {
   }
 
   private Class<?> getParameterType(Method method) {
+    // 遍历参数类型数组
+    // 排除 RowBounds 和 ResultHandler 两种参数
+    // 1. 如果是多参数，则是 ParamMap 类型
+    // 2. 如果是单参数，则是该参数的类型
     Class<?> parameterType = null;
     Class<?>[] parameterTypes = method.getParameterTypes();
     for (Class<?> currentParameterType : parameterTypes) {
@@ -409,13 +421,16 @@ public class MapperAnnotationBuilder {
 
   private Class<?> getReturnType(Method method) {
     Class<?> returnType = method.getReturnType();
+    // 解析成对应的 Type
     Type resolvedReturnType = TypeParameterResolver.resolveReturnType(method, type);
+    // 如果 Type 是 Class ，普通类
     if (resolvedReturnType instanceof Class) {
       returnType = (Class<?>) resolvedReturnType;
-      if (returnType.isArray()) {
+      if (returnType.isArray()) { // 如果是数组类型，则使用 componentType
         returnType = returnType.getComponentType();
       }
       // gcode issue #508
+      // 如果返回类型是 void ，则尝试使用 @ResultType 注解
       if (void.class.equals(returnType)) {
         ResultType rt = method.getAnnotation(ResultType.class);
         if (rt != null) {

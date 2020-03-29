@@ -53,12 +53,18 @@ public @interface CacheNamespace {
    *
    * @return the cache implementation type
    */
+  /**
+   * @return 负责存储的 Cache 实现类
+   */
   Class<? extends Cache> implementation() default PerpetualCache.class;
 
   /**
    * Returns the cache evicting implementation type to use.
    *
    * @return the cache evicting implementation type
+   */
+  /**
+   * @return 负责过期的 Cache 实现类
    */
   Class<? extends Cache> eviction() default LruCache.class;
 
@@ -67,12 +73,18 @@ public @interface CacheNamespace {
    *
    * @return the flush interval
    */
+  /**
+   * @return 清空缓存的频率。0 代表不清空
+   */
   long flushInterval() default 0;
 
   /**
    * Return the cache size.
    *
    * @return the cache size
+   */
+  /**
+   * @return 缓存容器大小
    */
   int size() default 1024;
 
@@ -81,6 +93,9 @@ public @interface CacheNamespace {
    *
    * @return {@code true} if use read/write cache; {@code false} if otherwise
    */
+  /**
+   * @return 是否序列化。{@link org.apache.ibatis.cache.decorators.SerializedCache}
+   */
   boolean readWrite() default true;
 
   /**
@@ -88,12 +103,15 @@ public @interface CacheNamespace {
    *
    * @return {@code true} if block the cache; {@code false} if otherwise
    */
+  /**
+   * @return 是否阻塞。{@link org.apache.ibatis.cache.decorators.BlockingCache}
+   */
   boolean blocking() default false;
 
   /**
    * Returns property values for a implementation object.
    *
-   * @return property values
+   * @return property values   数组
    * @since 3.4.2
    */
   Property[] properties() default {};

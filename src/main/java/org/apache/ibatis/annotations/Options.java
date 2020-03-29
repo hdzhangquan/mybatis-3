@@ -57,48 +57,49 @@ public @interface Options {
 
   /**
    * Returns whether use the 2nd cache feature if assigned the cache.
-   *
+   * 是否使用缓存
    * @return {@code true} if use; {@code false} if otherwise
    */
   boolean useCache() default true;
 
   /**
    * Returns the 2nd cache flush strategy.
-   *
+   *  刷新缓存的策略
    * @return the 2nd cache flush strategy
    */
   FlushCachePolicy flushCache() default FlushCachePolicy.DEFAULT;
 
   /**
    * Returns the result set type.
-   *
+   *  结果类型
    * @return the result set type
    */
   ResultSetType resultSetType() default ResultSetType.DEFAULT;
 
   /**
    * Return the statement type.
-   *
+   *  语句类型
    * @return the statement type
    */
   StatementType statementType() default StatementType.PREPARED;
 
   /**
    * Returns the fetch size.
-   *
+   *  加载数量
    * @return the fetch size
    */
   int fetchSize() default -1;
 
   /**
    * Returns the statement timeout.
+   *  超时
    * @return the statement timeout
    */
   int timeout() default -1;
 
   /**
    * Returns whether use the generated keys feature supported by JDBC 3.0
-   *
+   *  是否生成主键
    * @return {@code true} if use; {@code false} if otherwise
    */
   boolean useGeneratedKeys() default false;
@@ -108,7 +109,7 @@ public @interface Options {
    * <p>
    * If you specify multiple property, please separate using comma(',').
    * </p>
-   *
+   *  主键在 Java 类中的属性
    * @return property names that separate with comma(',')
    */
   String keyProperty() default "";
@@ -118,7 +119,7 @@ public @interface Options {
    * <p>
    * If you specify multiple column, please separate using comma(',').
    * </p>
-   *
+   *  主键在数据库中的字段
    * @return column names that separate with comma(',')
    */
   String keyColumn() default "";
@@ -128,7 +129,7 @@ public @interface Options {
    * <p>
    * If you specify multiple result set, please separate using comma(',').
    * </p>
-   *
+   *  结果集
    * @return result set names that separate with comma(',')
    */
   String resultSets() default "";

@@ -214,7 +214,7 @@ public class ResolverUtil<T> {
    *        classes, e.g. {@code net.sourceforge.stripes}
    */
   public ResolverUtil<T> find(Test test, String packageName) {
-    String path = getPackagePath(packageName);
+      String path = getPackagePath(packageName);
 
     try {
       List<String> children = VFS.getInstance().list(path);

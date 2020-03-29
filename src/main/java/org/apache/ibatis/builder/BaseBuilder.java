@@ -46,10 +46,18 @@ public abstract class BaseBuilder {
     return configuration;
   }
 
+  /**
+   * 创建正则表达式
+   *
+   * @param regex 指定表达式
+   * @param defaultValue 默认表达式
+   * @return 正则表达式
+   */
   protected Pattern parseExpression(String regex, String defaultValue) {
     return Pattern.compile(regex == null ? defaultValue : regex);
   }
 
+  //  将字符串转换成对应的数据类型的值
   protected Boolean booleanValueOf(String value, Boolean defaultValue) {
     return value == null ? defaultValue : Boolean.valueOf(value);
   }
@@ -63,6 +71,7 @@ public abstract class BaseBuilder {
     return new HashSet<>(Arrays.asList(value.split(",")));
   }
 
+  //  解析对应的 JdbcType 类型
   protected JdbcType resolveJdbcType(String alias) {
     if (alias == null) {
       return null;
@@ -73,7 +82,7 @@ public abstract class BaseBuilder {
       throw new BuilderException("Error resolving JdbcType. Cause: " + e, e);
     }
   }
-
+  //  解析对应的 ResultSetType 类型
   protected ResultSetType resolveResultSetType(String alias) {
     if (alias == null) {
       return null;
@@ -84,7 +93,7 @@ public abstract class BaseBuilder {
       throw new BuilderException("Error resolving ResultSetType. Cause: " + e, e);
     }
   }
-
+  //  解析对应的 ParameterMode 类型
   protected ParameterMode resolveParameterMode(String alias) {
     if (alias == null) {
       return null;
@@ -95,7 +104,7 @@ public abstract class BaseBuilder {
       throw new BuilderException("Error resolving ParameterMode. Cause: " + e, e);
     }
   }
-
+  //  创建指定对象
   protected Object createInstance(String alias) {
     Class<?> clazz = resolveClass(alias);
     if (clazz == null) {
@@ -137,9 +146,11 @@ public abstract class BaseBuilder {
       return null;
     }
     // javaType ignored for injected handlers see issue #746 for full detail
+    // 先获得 TypeHandler 对象
     TypeHandler<?> handler = typeHandlerRegistry.getMappingTypeHandler(typeHandlerType);
     if (handler == null) {
       // not in registry, create a new one
+      // 如果不存在，进行创建 TypeHandler 对象
       handler = typeHandlerRegistry.getInstance(javaType, typeHandlerType);
     }
     return handler;

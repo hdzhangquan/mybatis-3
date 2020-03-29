@@ -43,7 +43,7 @@ import org.apache.ibatis.mapping.StatementType;
 public @interface SelectKey {
   /**
    * Returns an SQL for retrieving a key value.
-   *
+   *  语句
    * @return an SQL for retrieving a key value
    */
   String[] statement();
@@ -53,7 +53,7 @@ public @interface SelectKey {
    * <p>
    * If you specify multiple property, please separate using comma(',').
    * </p>
-   *
+   *  Java 对象的属性
    * @return property names that separate with comma(',')
    */
   String keyProperty();
@@ -63,21 +63,21 @@ public @interface SelectKey {
    * <p>
    * If you specify multiple column, please separate using comma(',').
    * </p>
-   *
+   *  数据库的字段
    * @return column names that separate with comma(',')
    */
   String keyColumn() default "";
 
   /**
    * Returns whether retrieves a key value before executing insert/update statement.
-   *
+   *  在插入语句执行前，还是执行后
    * @return {@code true} if execute before; {@code false} if otherwise
    */
   boolean before();
 
   /**
    * Returns the key value type.
-   *
+   *  返回类型
    * @return the key value type
    */
   Class<?> resultType();

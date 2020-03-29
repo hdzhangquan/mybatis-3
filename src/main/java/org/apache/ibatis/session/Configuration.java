@@ -145,6 +145,9 @@ public class Configuration {
   protected Class<?> configurationFactory;
 
   protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+  /**
+   * 拦截器链
+   */
   protected final InterceptorChain interceptorChain = new InterceptorChain();
   protected final TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry(this);
   protected final TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
@@ -886,6 +889,7 @@ public class Configuration {
 
   // Slow but a one time cost. A better solution is welcome.
   protected void checkLocallyForDiscriminatedNestedResultMaps(ResultMap rm) {
+    // 如果传入的 ResultMap 没有内嵌的 ResultMap 并且 有鉴别器
     if (!rm.hasNestedResultMaps() && rm.getDiscriminator() != null) {
       for (Map.Entry<String, String> entry : rm.getDiscriminator().getDiscriminatorMap().entrySet()) {
         String discriminatedResultMapName = entry.getValue();

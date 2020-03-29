@@ -30,6 +30,16 @@ import java.util.Arrays;
  */
 public class TypeParameterResolver {
 
+  /*
+  **
+   * Type体系中包括,原始类型Class,参数化类型ParameterizedType,数组类型GenericArrayType,类型变量TypeVariable和基本类型Class
+   * 原始类型，不仅仅包含我们平常所指的类，还包括枚举、数组、注解等;
+   * 参数化类型，就是我们平常所用到的泛型List、Map;
+   * 数组类型，并不是我们工作中所使用的数组String[] 、byte[]，而是带有泛型的数组，即T[]
+   * 类型变量，即泛型中的变量；例如：T、K、V等变量，可以表示任何类
+   * 基本类型，也就是我们所说的java的基本类型，即int,float,double等
+   **/
+
   /**
    * @return The field type as {@link Type}. If it has type parameters in the declaration,<br>
    *         they will be resolved to the actual runtime {@link Type}s.

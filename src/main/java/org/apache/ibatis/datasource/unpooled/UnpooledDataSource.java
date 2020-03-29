@@ -48,6 +48,7 @@ public class UnpooledDataSource implements DataSource {
   private String password;
 
   private Boolean autoCommit;
+  //默认事务隔离级别
   private Integer defaultTransactionIsolationLevel;
   private Integer defaultNetworkTimeout;
 

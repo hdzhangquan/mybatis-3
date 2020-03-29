@@ -29,6 +29,7 @@ import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
 /**
  * @author Clinton Begin
+ * 对象元数据  提供了对象的属性值的获得和设置等方法  是对BaseWrapper的进一步增强
  */
 public class MetaObject {
 
@@ -124,6 +125,7 @@ public class MetaObject {
   }
 
   public void setValue(String name, Object value) {
+//    meta.setValue("richType.richMap[key]", "foo");
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
       MetaObject metaValue = metaObjectForProperty(prop.getIndexedName());

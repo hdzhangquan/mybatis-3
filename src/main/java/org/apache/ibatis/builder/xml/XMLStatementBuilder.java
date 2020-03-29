@@ -33,7 +33,7 @@ import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 
-/**
+/** 主要负责解析 Statement 配置，即 <select />、<insert />、<update />、<delete /> 标签
  * @author Clinton Begin
  */
 public class XMLStatementBuilder extends BaseBuilder {
@@ -69,6 +69,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     boolean resultOrdered = context.getBooleanAttribute("resultOrdered", false);
 
     // Include Fragments before parsing
+    // 创建 XMLIncludeTransformer 对象，并替换 <include /> 标签相关的内容
     XMLIncludeTransformer includeParser = new XMLIncludeTransformer(configuration, builderAssistant);
     includeParser.applyIncludes(context.getNode());
 
@@ -78,21 +79,23 @@ public class XMLStatementBuilder extends BaseBuilder {
     String lang = context.getStringAttribute("lang");
     LanguageDriver langDriver = getLanguageDriver(lang);
 
-    // Parse selectKey after includes and remove them.
+    // 解析 <selectKey /> 标签
     processSelectKeyNodes(id, parameterTypeClass, langDriver);
 
-    // Parse the SQL (pre: <selectKey> and <include> were parsed and removed)
+    // 获得 KeyGenerator 对象
     KeyGenerator keyGenerator;
+    // 优先，从 configuration 中获得 KeyGenerator 对象。如果存在，意味着是 <selectKey /> 标签配置的
     String keyStatementId = id + SelectKeyGenerator.SELECT_KEY_SUFFIX;
     keyStatementId = builderAssistant.applyCurrentNamespace(keyStatementId, true);
     if (configuration.hasKeyGenerator(keyStatementId)) {
       keyGenerator = configuration.getKeyGenerator(keyStatementId);
     } else {
-      keyGenerator = context.getBooleanAttribute("useGeneratedKeys",
-          configuration.isUseGeneratedKeys() && SqlCommandType.INSERT.equals(sqlCommandType))
+      // 其次，根据标签属性的情况，判断是否使用对应的 Jdbc3KeyGenerator 或者 NoKeyGenerator 对象
+      keyGenerator = context.getBooleanAttribute("useGeneratedKeys",  // 优先，基于 useGeneratedKeys 属性判断
+          configuration.isUseGeneratedKeys() && SqlCommandType.INSERT.equals(sqlCommandType)) // 其次，基于全局的 useGeneratedKeys 配置 + 是否为插入语句类型
           ? Jdbc3KeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
     }
-
+    // 创建 SqlSource
     SqlSource sqlSource = langDriver.createSqlSource(configuration, context, parameterTypeClass);
     StatementType statementType = StatementType.valueOf(context.getStringAttribute("statementType", StatementType.PREPARED.toString()));
     Integer fetchSize = context.getIntAttribute("fetchSize");
@@ -109,7 +112,7 @@ public class XMLStatementBuilder extends BaseBuilder {
     String keyProperty = context.getStringAttribute("keyProperty");
     String keyColumn = context.getStringAttribute("keyColumn");
     String resultSets = context.getStringAttribute("resultSets");
-
+    // 创建 MappedStatement 对象
     builderAssistant.addMappedStatement(id, sqlSource, statementType, sqlCommandType,
         fetchSize, timeout, parameterMap, parameterTypeClass, resultMap, resultTypeClass,
         resultSetTypeEnum, flushCache, useCache, resultOrdered,
@@ -117,6 +120,16 @@ public class XMLStatementBuilder extends BaseBuilder {
   }
 
   private void processSelectKeyNodes(String id, Class<?> parameterTypeClass, LanguageDriver langDriver) {
+    /*
+     * <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            <if test="_databaseId == 'hsql'">
+                select max(id) + 1 from hsql
+            </if>
+            <if test="_databaseId != 'hsql'">
+                select max(id) + 1 from common
+            </if>
+        </selectKey>
+     **/
     List<XNode> selectKeyNodes = context.evalNodes("selectKey");
     if (configuration.getDatabaseId() != null) {
       parseSelectKeyNodes(id, selectKeyNodes, parameterTypeClass, langDriver, configuration.getDatabaseId());
@@ -126,6 +139,16 @@ public class XMLStatementBuilder extends BaseBuilder {
   }
 
   private void parseSelectKeyNodes(String parentId, List<XNode> list, Class<?> parameterTypeClass, LanguageDriver langDriver, String skRequiredDatabaseId) {
+    /*
+     * <selectKey keyProperty="id" resultType="int" order="BEFORE" databaseId="hsql">
+            <if test="_databaseId == 'hsql'">
+                select max(id) + 1 from hsql
+            </if>
+            <if test="_databaseId != 'hsql'">
+                select max(id) + 1 from common
+            </if>
+        </selectKey>
+     **/
     for (XNode nodeToHandle : list) {
       String id = parentId + SelectKeyGenerator.SELECT_KEY_SUFFIX;
       String databaseId = nodeToHandle.getStringAttribute("databaseId");
@@ -136,6 +159,16 @@ public class XMLStatementBuilder extends BaseBuilder {
   }
 
   private void parseSelectKeyNode(String id, XNode nodeToHandle, Class<?> parameterTypeClass, LanguageDriver langDriver, String databaseId) {
+    /*
+     * <selectKey keyProperty="id" keyColumn="ID" resultType="int" order="BEFORE" databaseId="hsql">
+            <if test="_databaseId == 'hsql'">
+                select max(id) + 1 from hsql
+            </if>
+            <if test="_databaseId != 'hsql'">
+                select max(id) + 1 from common
+            </if>
+        </selectKey>
+     **/
     String resultType = nodeToHandle.getStringAttribute("resultType");
     Class<?> resultTypeClass = resolveClass(resultType);
     StatementType statementType = StatementType.valueOf(nodeToHandle.getStringAttribute("statementType", StatementType.PREPARED.toString()));

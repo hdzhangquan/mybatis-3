@@ -30,6 +30,7 @@ public class MethodResolver {
   }
 
   public void resolve() {
+    //执行注解方法的解析
     annotationBuilder.parseStatement(method);
   }
 

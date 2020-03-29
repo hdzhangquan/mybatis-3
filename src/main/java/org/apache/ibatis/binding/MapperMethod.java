@@ -218,7 +218,13 @@ public class MapperMethod {
 
   public static class SqlCommand {
 
+    /**
+     * {@link MappedStatement#getId()}
+     */
     private final String name;
+    /**
+     * SQL 命令类型
+     */
     private final SqlCommandType type;
 
     public SqlCommand(Configuration configuration, Class<?> mapperInterface, Method method) {
@@ -256,9 +262,11 @@ public class MapperMethod {
       String statementId = mapperInterface.getName() + "." + methodName;
       if (configuration.hasStatement(statementId)) {
         return configuration.getMappedStatement(statementId);
+        // 如果没有，并且当前方法就是 declaringClass 声明的，则说明真的找不到
       } else if (mapperInterface.equals(declaringClass)) {
         return null;
       }
+      // 遍历父接口，继续获得 MappedStatement 对象
       for (Class<?> superInterface : mapperInterface.getInterfaces()) {
         if (declaringClass.isAssignableFrom(superInterface)) {
           MappedStatement ms = resolveMappedStatement(superInterface, methodName,
@@ -274,24 +282,58 @@ public class MapperMethod {
 
   public static class MethodSignature {
 
+    /**
+     * 返回类型是否为集合
+     */
     private final boolean returnsMany;
+    /**
+     * 返回类型是否为 Map
+     */
     private final boolean returnsMap;
+    /**
+     * 返回类型是否为 void
+     */
     private final boolean returnsVoid;
+    /**
+     * 返回类型是否为 {@link org.apache.ibatis.cursor.Cursor}
+     */
     private final boolean returnsCursor;
+    /**
+     * 返回类型是否为 {@link java.util.Optional}
+     */
     private final boolean returnsOptional;
+    /**
+     * 返回类型
+     */
     private final Class<?> returnType;
+    /**
+     * 返回方法上的 {@link MapKey#value()} ，前提是返回类型为 Map
+     */
     private final String mapKey;
+    /**
+     * 获得 {@link ResultHandler} 在方法参数中的位置。
+     *
+     * 如果为 null ，说明不存在这个类型
+     */
     private final Integer resultHandlerIndex;
+    /**
+     * 获得 {@link RowBounds} 在方法参数中的位置。
+     *
+     * 如果为 null ，说明不存在这个类型
+     */
     private final Integer rowBoundsIndex;
+    /**
+     * ParamNameResolver 对象  参数名转换器
+     */
     private final ParamNameResolver paramNameResolver;
 
     public MethodSignature(Configuration configuration, Class<?> mapperInterface, Method method) {
       Type resolvedReturnType = TypeParameterResolver.resolveReturnType(method, mapperInterface);
-      if (resolvedReturnType instanceof Class<?>) {
+      if (resolvedReturnType instanceof Class<?>) {  // 普通类
         this.returnType = (Class<?>) resolvedReturnType;
-      } else if (resolvedReturnType instanceof ParameterizedType) {
+      } else if (resolvedReturnType instanceof ParameterizedType) {  // 泛型
         this.returnType = (Class<?>) ((ParameterizedType) resolvedReturnType).getRawType();
-      } else {
+      } else {  // 内部类等等
         this.returnType = method.getReturnType();
       }
       this.returnsVoid = void.class.equals(this.returnType);

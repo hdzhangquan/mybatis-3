@@ -29,7 +29,13 @@ import org.apache.ibatis.cache.Cache;
  * @author Clinton Begin
  */
 public class SoftCache implements Cache {
+  /**
+   * 强引用的键的队列
+   */
   private final Deque<Object> hardLinksToAvoidGarbageCollection;
+  /**
+   * 被 GC 回收的 WeakEntry 集合，避免被 GC。
+   */
   private final ReferenceQueue<Object> queueOfGarbageCollectedEntries;
   private final Cache delegate;
   private int numberOfHardLinks;
@@ -73,6 +79,7 @@ public class SoftCache implements Cache {
       if (result == null) {
         delegate.removeObject(key);
       } else {
+        // 非空，添加到 hardLinksToAvoidGarbageCollection 中，避免被 GC
         // See #586 (and #335) modifications need more than a read lock
         synchronized (hardLinksToAvoidGarbageCollection) {
           hardLinksToAvoidGarbageCollection.addFirst(result);

@@ -107,6 +107,14 @@ public class BlockingCache implements Cache {
 
   private void releaseLock(Object key) {
     ReentrantLock lock = locks.get(key);
+//    lock.isFair()方法用来判断lock锁是公平锁还是非公平锁。
+//    公平锁是指，线程获得锁的顺序是按其等待锁的先后顺序来的，先来先获得FIFO。
+//    反之，非公平锁则是线程随机获得锁的，lock默认是非公平锁
+
+//    hasQueuedThreads()   判断是否有线程在等待该锁
+//    isLocked()           判断锁是否被任何线程获取了
+
+    //      检测该锁是否被当前线程所持有
     if (lock.isHeldByCurrentThread()) {
       lock.unlock();
     }

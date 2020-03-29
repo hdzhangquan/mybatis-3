@@ -146,6 +146,7 @@ public class MetaClass {
   }
 
   public boolean hasGetter(String name) {
+    //String name = "richType.richList[0]";
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
       if (reflector.hasGetter(prop.getName())) {
@@ -168,6 +169,7 @@ public class MetaClass {
   }
 
   private StringBuilder buildProperty(String name, StringBuilder builder) {
+//    String name = "RICHfield";
     PropertyTokenizer prop = new PropertyTokenizer(name);
     if (prop.hasNext()) {
       String propertyName = reflector.findPropertyName(prop.getName());

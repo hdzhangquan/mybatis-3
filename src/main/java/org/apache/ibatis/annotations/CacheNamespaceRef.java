@@ -15,6 +15,8 @@
  */
 package org.apache.ibatis.annotations;
 
+import org.apache.ibatis.builder.annotation.MapperAnnotationBuilder;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -44,14 +46,14 @@ public @interface CacheNamespaceRef {
 
   /**
    * Returns the namespace type to reference a cache (the namespace name become a FQCN of specified type).
-   *
+   *  见 {@link MapperAnnotationBuilder#parseCacheRef()} 方法
    * @return the namespace type to reference a cache
    */
   Class<?> value() default void.class;
 
   /**
    * Returns the namespace name to reference a cache.
-   *
+   *  指向的命名空间
    * @return the namespace name
    * @since 3.4.2
    */

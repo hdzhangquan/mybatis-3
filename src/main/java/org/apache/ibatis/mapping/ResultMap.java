@@ -31,7 +31,7 @@ import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.reflection.ParamNameUtil;
 import org.apache.ibatis.session.Configuration;
 
-/**
+/** 结果集，例如 <resultMap /> 解析后的对象
  * @author Clinton Begin
  */
 public class ResultMap {
@@ -40,14 +40,44 @@ public class ResultMap {
   private String id;
   private Class<?> type;
   private List<ResultMapping> resultMappings;
+  /**
+   * ID ResultMapping 集合
+   *
+   * 当 idResultMappings 为空时，使用 {@link #resultMappings} 赋值
+   */
   private List<ResultMapping> idResultMappings;
+  /**
+   * 构造方法 ResultMapping 集合
+   *
+   * 和 {@link #propertyResultMappings} 只有一个值
+   */
   private List<ResultMapping> constructorResultMappings;
+  /**
+   * 属性 ResultMapping 集合
+   */
   private List<ResultMapping> propertyResultMappings;
+  /**
+   * 数据库的字段集合
+   */
   private Set<String> mappedColumns;
+  /**
+   * Java 对象的属性集合
+   */
   private Set<String> mappedProperties;
   private Discriminator discriminator;
+  /**
+   * 是否有内嵌的 ResultMap
+   */
   private boolean hasNestedResultMaps;
+  /**
+   * 是否有内嵌的查询
+   */
   private boolean hasNestedQueries;
+  /**
+   * 是否开启自动匹配
+   *
+   * 如果设置这个属性，MyBatis将会为这个ResultMap开启或者关闭自动映射。这个属性会覆盖全局的属性 autoMappingBehavior。默认值为：unset。
+   */
   private Boolean autoMapping;
 
   private ResultMap() {
@@ -146,13 +176,16 @@ public class ResultMap {
     }
 
     private List<String> argNamesOfMatchingConstructor(List<String> constructorArgNames) {
+      // 获得所有构造方法
       Constructor<?>[] constructors = resultMap.type.getDeclaredConstructors();
       for (Constructor<?> constructor : constructors) {
         Class<?>[] paramTypes = constructor.getParameterTypes();
+        // 参数数量一致
         if (constructorArgNames.size() == paramTypes.length) {
+          // 获得构造方法的参数名的数组
           List<String> paramNames = getArgNames(constructor);
-          if (constructorArgNames.containsAll(paramNames)
-              && argTypesMatch(constructorArgNames, paramTypes, paramNames)) {
+          if (constructorArgNames.containsAll(paramNames) // 判断名字
+              && argTypesMatch(constructorArgNames, paramTypes, paramNames)) { // 判断类型
             return paramNames;
           }
         }
@@ -160,6 +193,14 @@ public class ResultMap {
       return null;
     }
 
+    /**
+     * 判断构造方法的参数类型是否符合
+     *
+     * @param constructorArgNames 构造方法的参数名数组
+     * @param paramTypes 构造方法的参数类型数组
+     * @param paramNames 声明的参数名数组
+     * @return 是否符合
+     */
     private boolean argTypesMatch(final List<String> constructorArgNames,
         Class<?>[] paramTypes, List<String> paramNames) {
       for (int i = 0; i < constructorArgNames.size(); i++) {
@@ -179,6 +220,14 @@ public class ResultMap {
       return true;
     }
 
+    /**
+     * 获得构造方法的参数名的数组
+     *
+     * 因为参数上会有 {@link Param} 注解，所以会使用注解上设置的名字
+     *
+     * @param constructor 构造方法
+     * @return 参数名数组
+     */
     private List<String> getArgNames(Constructor<?> constructor) {
       List<String> paramNames = new ArrayList<>();
       List<String> actualParamNames = null;
